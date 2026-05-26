@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { createClient, createStaticClient } from '@/lib/supabase/server'
-import { formatPrice, getPublicImageUrl } from '@/lib/utils'
+import { formatPrice, getPublicImageUrl, stripHtml } from '@/lib/utils'
 import { AddToCartButton } from './_components/add-to-cart-button'
 import type { ArtworkWithImages } from '@/types/database'
 
@@ -31,12 +31,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const primaryImage = artwork.artwork_images?.find(i => i.is_primary) ?? artwork.artwork_images?.[0]
   const imageUrl = primaryImage ? getPublicImageUrl(primaryImage.storage_path) : undefined
 
+  const plainDescription = artwork.description
+    ? stripHtml(artwork.description)
+    : `${artwork.title} — ${artwork.medium} by Wolfgang Finger`
+
   return {
     title: artwork.title,
-    description: artwork.description ?? `${artwork.title} — ${artwork.medium} by Wolfgang Finger`,
+    description: plainDescription,
     openGraph: {
       title: artwork.title,
-      description: artwork.description ?? undefined,
+      description: plainDescription,
       images: imageUrl ? [{ url: imageUrl, alt: primaryImage?.alt_text ?? artwork.title }] : [],
     },
   }
@@ -63,7 +67,7 @@ export default async function ArtworkPage({ params }: Props) {
     '@context': 'https://schema.org',
     '@type': 'VisualArtwork',
     name: artwork.title,
-    description: artwork.description,
+    description: artwork.description ? stripHtml(artwork.description) : undefined,
     artMedium: artwork.medium,
     width: artwork.dimensions,
     dateCreated: artwork.year_created?.toString(),
@@ -180,9 +184,10 @@ export default async function ArtworkPage({ params }: Props) {
 
             {/* Description */}
             {artwork.description && (
-              <p className="text-[13px] text-warm-muted leading-relaxed mb-8 border-l-2 border-warm-border pl-4">
-                {artwork.description}
-              </p>
+              <div
+                className="artwork-description text-[13px] text-warm-muted leading-relaxed mb-8 border-l-2 border-warm-border pl-4"
+                dangerouslySetInnerHTML={{ __html: artwork.description }}
+              />
             )}
 
             {/* Price + CTA — pushed to bottom on desktop */}

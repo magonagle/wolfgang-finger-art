@@ -28,6 +28,11 @@ export function formatDate(dateString: string): string {
   }).format(new Date(dateString))
 }
 
+/** Strip HTML tags for use in plain-text contexts (meta descriptions, JSON-LD). */
+export function stripHtml(html: string): string {
+  return html.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim()
+}
+
 export function getPublicImageUrl(storagePath: string): string {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
   return `${url}/storage/v1/object/public/artwork-images/${storagePath}`
