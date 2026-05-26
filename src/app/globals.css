@@ -180,3 +180,79 @@ body.cursor-hover #cursor-ring { width: 42px; height: 42px; border-color: theme(
 /* ─── Prose overrides ────────────────────────────────────────────────── */
 .prose { color: theme(colors.ink); }
 .prose a { color: theme(colors.ink); }
+
+/* ─── Rich Text Editor (Tiptap — admin only) ─────────────────────────── */
+.rte-wrapper {
+  border: 1px solid #d6d3d1; /* stone-300 */
+  background: #fff;
+}
+
+.rte-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 8px;
+  border-bottom: 1px solid #d6d3d1;
+  background: #fafaf9;
+}
+
+.rte-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  font-size: 13px;
+  color: #57534e; /* stone-600 */
+  border-radius: 3px;
+  transition: background 150ms ease, color 150ms ease;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+}
+.rte-btn:hover { background: #e7e5e4; color: #1c1917; }
+.rte-btn[data-active='true'] { background: #1c1917; color: #fff; }
+
+.rte-divider {
+  width: 1px;
+  height: 18px;
+  background: #d6d3d1;
+  margin: 0 4px;
+}
+
+/* Editor content area */
+.rte-content {
+  min-height: 100px;
+  padding: 10px 12px;
+  font-size: 0.875rem;
+  color: #1c1917;
+  line-height: 1.6;
+  outline: none;
+}
+
+/* Placeholder */
+.rte-content p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: #a8a29e; /* stone-400 */
+  pointer-events: none;
+  float: left;
+  height: 0;
+}
+
+/* Basic content styling inside editor */
+.rte-content p { margin: 0 0 0.5em; }
+.rte-content p:last-child { margin-bottom: 0; }
+.rte-content ul { padding-left: 1.25em; list-style: disc; margin: 0 0 0.5em; }
+.rte-content a { text-decoration: underline; color: #1c1917; }
+
+/* Focus ring on the wrapper */
+.rte-wrapper:focus-within {
+  outline: none;
+  box-shadow: 0 0 0 2px #1c1917;
+}
+
+/* ─── Artwork description rendered HTML (public pages) ───────────────── */
+.artwork-description p { margin: 0 0 0.75em; }
+.artwork-description p:last-child { margin-bottom: 0; }
+.artwork-description ul { padding-left: 1.25em; list-style: disc; margin: 0 0 0.75em; }
+.artwork-description a { text-decoration: underline; }

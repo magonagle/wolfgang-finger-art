@@ -10,6 +10,7 @@ import { MEDIUMS } from '@/lib/mediums'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 import { ImageUpload } from '@/components/admin/image-upload'
+import { RichTextEditor } from '@/components/admin/rich-text-editor'
 import type { ArtworkWithImages, ArtworkImage } from '@/types/database'
 
 interface ArtworkFormProps {
@@ -50,6 +51,7 @@ export function ArtworkForm({ artwork }: ArtworkFormProps) {
   })
 
   const title = watch('title')
+  const description = watch('description')
 
   // Auto-generate slug from title (only for new artworks)
   useEffect(() => {
@@ -104,14 +106,12 @@ export function ArtworkForm({ artwork }: ArtworkFormProps) {
       </div>
 
       <div className="flex flex-col gap-1">
-        <label htmlFor="description" className="text-sm font-medium text-stone-700">
+        <label className="text-sm font-medium text-stone-700">
           Description
         </label>
-        <textarea
-          id="description"
-          rows={4}
-          className="w-full border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-900"
-          {...register('description')}
+        <RichTextEditor
+          value={description ?? ''}
+          onChange={html => setValue('description', html, { shouldDirty: true })}
         />
       </div>
 
