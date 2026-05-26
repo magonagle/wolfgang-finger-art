@@ -6,7 +6,7 @@
   --color-parchment:   #F5F2EB;
   --color-ink:         #19160E;
   --color-warm-border: #E2DDD4;
-  --color-warm-muted:  #96918A;
+  --color-warm-muted:  #6B6560;
   --color-gold:        #B8955C;
   --color-cream:       #FDFBF7;
 
@@ -14,7 +14,16 @@
 }
 
 /* ─── Base ───────────────────────────────────────────────────────────── */
-html { scroll-behavior: smooth; }
+/* Bump base on mobile so rem-based Tailwind sizes (text-sm etc.) read comfortably.
+   text-sm (0.875rem) = ~14px at 16px base → ~15px at 17px base.
+   The 6% scaling on spacing is imperceptible at this range. */
+html {
+  scroll-behavior: smooth;
+  font-size: 17px;
+}
+@media (min-width: 768px) {
+  html { font-size: 16px; }
+}
 
 body {
   background-color: theme(colors.parchment);
