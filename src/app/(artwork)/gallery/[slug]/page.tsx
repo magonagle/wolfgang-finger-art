@@ -135,7 +135,8 @@ export default async function ArtworkPage({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <div className="mx-auto max-w-7xl px-6 md:px-14 py-12 md:py-16">
+      {/* pb-24 clears the sticky nav bar at the bottom */}
+      <div className="mx-auto max-w-7xl px-6 md:px-14 py-12 md:py-16 pb-24 md:pb-28">
 
         {/* Back link */}
         <Link
@@ -276,11 +277,11 @@ export default async function ArtworkPage({ params }: Props) {
         </div>
       </div>
 
-      {/* ── Prev / Next navigation ─────────────────────────────────────── */}
+      {/* ── Prev / Next navigation — sticky footer ────────────────────── */}
       {(prev || next) && (
         <nav
           aria-label="Browse artworks"
-          className="border-t border-warm-border mt-8"
+          className="fixed bottom-0 left-0 right-0 z-40 bg-parchment border-t border-warm-border shadow-[0_-4px_24px_rgba(25,22,14,0.06)]"
         >
           <div className="mx-auto max-w-7xl px-6 md:px-14">
             <div className="grid grid-cols-2">
@@ -289,7 +290,7 @@ export default async function ArtworkPage({ params }: Props) {
               {prev ? (
                 <Link
                   href={`/gallery/${prev.slug}`}
-                  className="group flex items-center gap-4 py-8 pr-6 border-r border-warm-border hover:bg-cream transition-colors duration-300"
+                  className="group flex items-center gap-3 md:gap-4 py-4 pr-4 md:pr-6 border-r border-warm-border hover:bg-cream transition-colors duration-300"
                 >
                   {/* Arrow */}
                   <span className="shrink-0 text-warm-muted group-hover:text-ink transition-colors duration-300">
@@ -300,24 +301,24 @@ export default async function ArtworkPage({ params }: Props) {
 
                   {/* Thumbnail */}
                   {prev.thumb && (
-                    <div className="relative h-14 w-14 shrink-0 bg-parchment overflow-hidden">
+                    <div className="relative h-10 w-10 shrink-0 bg-warm-border/20 overflow-hidden hidden sm:block">
                       <Image
                         src={prev.thumb}
                         alt={prev.title}
                         fill
-                        className="object-contain p-1 transition-transform duration-500 group-hover:scale-105"
-                        sizes="56px"
+                        className="object-contain p-0.5 transition-transform duration-500 group-hover:scale-105"
+                        sizes="40px"
                       />
                     </div>
                   )}
 
                   {/* Label + title */}
                   <div className="min-w-0">
-                    <p className="text-[9px] uppercase tracking-[0.2em] text-warm-muted mb-1">Previous</p>
-                    <p className="font-display italic text-[15px] text-ink leading-snug truncate group-hover:text-warm-muted transition-colors duration-300">
+                    <p className="text-[9px] uppercase tracking-[0.2em] text-warm-muted mb-0.5">Previous</p>
+                    <p className="font-display italic text-[13px] md:text-[15px] text-ink leading-snug truncate group-hover:text-warm-muted transition-colors duration-300">
                       {prev.title}
                     </p>
-                    <p className="text-[10px] uppercase tracking-[0.12em] text-warm-muted mt-0.5 capitalize">
+                    <p className="text-[10px] uppercase tracking-[0.12em] text-warm-muted mt-0.5 capitalize hidden sm:block">
                       {prev.medium}{prev.year_created ? `, ${prev.year_created}` : ''}
                     </p>
                   </div>
@@ -330,28 +331,28 @@ export default async function ArtworkPage({ params }: Props) {
               {next ? (
                 <Link
                   href={`/gallery/${next.slug}`}
-                  className="group flex items-center justify-end gap-4 py-8 pl-6 hover:bg-cream transition-colors duration-300"
+                  className="group flex items-center justify-end gap-3 md:gap-4 py-4 pl-4 md:pl-6 hover:bg-cream transition-colors duration-300"
                 >
                   {/* Label + title */}
                   <div className="min-w-0 text-right">
-                    <p className="text-[9px] uppercase tracking-[0.2em] text-warm-muted mb-1">Next</p>
-                    <p className="font-display italic text-[15px] text-ink leading-snug truncate group-hover:text-warm-muted transition-colors duration-300">
+                    <p className="text-[9px] uppercase tracking-[0.2em] text-warm-muted mb-0.5">Next</p>
+                    <p className="font-display italic text-[13px] md:text-[15px] text-ink leading-snug truncate group-hover:text-warm-muted transition-colors duration-300">
                       {next.title}
                     </p>
-                    <p className="text-[10px] uppercase tracking-[0.12em] text-warm-muted mt-0.5 capitalize">
+                    <p className="text-[10px] uppercase tracking-[0.12em] text-warm-muted mt-0.5 capitalize hidden sm:block">
                       {next.medium}{next.year_created ? `, ${next.year_created}` : ''}
                     </p>
                   </div>
 
                   {/* Thumbnail */}
                   {next.thumb && (
-                    <div className="relative h-14 w-14 shrink-0 bg-parchment overflow-hidden">
+                    <div className="relative h-10 w-10 shrink-0 bg-warm-border/20 overflow-hidden hidden sm:block">
                       <Image
                         src={next.thumb}
                         alt={next.title}
                         fill
-                        className="object-contain p-1 transition-transform duration-500 group-hover:scale-105"
-                        sizes="56px"
+                        className="object-contain p-0.5 transition-transform duration-500 group-hover:scale-105"
+                        sizes="40px"
                       />
                     </div>
                   )}
