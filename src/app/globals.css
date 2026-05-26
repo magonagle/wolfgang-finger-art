@@ -1,0 +1,171 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+/* ─── Design Tokens ──────────────────────────────────────────────────── */
+@theme {
+  --color-parchment:   #F5F2EB;
+  --color-ink:         #19160E;
+  --color-warm-border: #E2DDD4;
+  --color-warm-muted:  #96918A;
+  --color-gold:        #B8955C;
+  --color-cream:       #FDFBF7;
+
+  --font-family-display: var(--font-bodoni), 'Bodoni MT', Georgia, serif;
+}
+
+/* ─── Base ───────────────────────────────────────────────────────────── */
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: theme(colors.parchment);
+  color: theme(colors.ink);
+  font-family: var(--font-dm-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  cursor: none;
+}
+
+/* Kill default cursor everywhere except inside inputs/textareas
+   (re-enable there so text cursor still works) */
+a, button, [role="button"] { cursor: none; }
+input, textarea, select { cursor: text; }
+
+::selection {
+  background-color: theme(colors.ink);
+  color: theme(colors.parchment);
+}
+
+/* ─── Custom Cursor ──────────────────────────────────────────────────── */
+#cursor-dot {
+  position: fixed;
+  top: 0; left: 0;
+  width: 6px; height: 6px;
+  background: theme(colors.ink);
+  border-radius: 9999px;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  transition: width 200ms ease, height 200ms ease, background 200ms ease;
+  will-change: transform;
+}
+
+#cursor-ring {
+  position: fixed;
+  top: 0; left: 0;
+  width: 28px; height: 28px;
+  border: 1px solid theme(colors.ink);
+  border-radius: 9999px;
+  pointer-events: none;
+  z-index: 9998;
+  transform: translate(-50%, -50%);
+  transition: width 300ms ease, height 300ms ease, opacity 300ms ease, border-color 300ms ease;
+  will-change: transform;
+}
+
+body.cursor-hover #cursor-dot  { width: 10px; height: 10px; background: theme(colors.gold); }
+body.cursor-hover #cursor-ring { width: 42px; height: 42px; border-color: theme(colors.gold); opacity: 0.6; }
+
+/* ─── Typography Helpers ─────────────────────────────────────────────── */
+.font-display { font-family: var(--font-bodoni), 'Bodoni MT', Georgia, serif; }
+
+/* ─── Animations ─────────────────────────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes scaleReveal {
+  from { clip-path: inset(0 0 100% 0); }
+  to   { clip-path: inset(0 0 0% 0); }
+}
+
+.anim-fade-up   { animation: fadeUp 0.75s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.anim-fade-in   { animation: fadeIn 0.6s ease both; }
+
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
+.delay-500 { animation-delay: 500ms; }
+
+/* ─── Artwork Image Hover ────────────────────────────────────────────── */
+.artwork-frame {
+  overflow: hidden;
+  position: relative;
+}
+
+.artwork-frame img {
+  transition: transform 700ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: transform;
+}
+
+.artwork-frame:hover img { transform: scale(1.045); }
+
+/* Thin border that fades in on hover */
+.artwork-frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(25, 22, 14, 0.18);
+  opacity: 0;
+  transition: opacity 400ms ease;
+  pointer-events: none;
+  z-index: 1;
+}
+.artwork-frame:hover::after { opacity: 1; }
+
+/* ─── Nav Link Hover Underline ───────────────────────────────────────── */
+.nav-link {
+  position: relative;
+  padding-bottom: 2px;
+}
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 0; height: 1px;
+  background: currentColor;
+  transition: width 300ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.nav-link:hover::after,
+.nav-link[data-active='true']::after { width: 100%; }
+
+/* ─── Section Marker ─────────────────────────────────────────────────── */
+.section-rule {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+.section-rule::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: theme(colors.warm-border);
+}
+
+/* ─── Filter Tabs ────────────────────────────────────────────────────── */
+.filter-tab {
+  position: relative;
+  padding-bottom: 4px;
+  transition: color 200ms ease;
+}
+.filter-tab::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 0; height: 1px;
+  background: theme(colors.ink);
+  transition: width 250ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.filter-tab[data-active='true']::after { width: 100%; }
+.filter-tab[data-active='true'] { color: theme(colors.ink); }
+
+/* ─── Prose overrides ────────────────────────────────────────────────── */
+.prose { color: theme(colors.ink); }
+.prose a { color: theme(colors.ink); }
