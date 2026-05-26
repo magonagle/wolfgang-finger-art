@@ -17,7 +17,7 @@ async function getAvailableArtworks(): Promise<ArtworkWithImages[]> {
     .from('artworks')
     .select('*, artwork_images(*)')
     .eq('is_sold', false)
-    .order('created_at', { ascending: false })
+    .order('sort_order', { ascending: true })
   return data ?? []
 }
 

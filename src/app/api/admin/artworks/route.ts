@@ -13,9 +13,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: result.error.flatten() }, { status: 422 })
   }
 
+  // Place new artwork at the end of the list
+  const { count } = await supabase
+    .from('artworks')
+    .select('*', { count: 'exact', head: true })
+  const nextSortOrder = count ?? 0
+
   const { data, error } = await supabase
     .from('artworks')
-    .insert({ ...result.data, id: body.id })
+    .insert({ ...result.data, id: body.id, sort_order: nextSortOrder })
     .select()
     .single()
 

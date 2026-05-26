@@ -14,6 +14,7 @@ export interface Artwork {
   is_sold: boolean
   is_featured: boolean
   is_hero: boolean
+  sort_order: number
   dimensions: string | null
   year_created: number | null
   created_at: string

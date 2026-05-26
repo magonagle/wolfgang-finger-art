@@ -19,7 +19,7 @@ async function getFeaturedArtworks(): Promise<ArtworkWithImages[]> {
     .from('artworks')
     .select('*, artwork_images(*)')
     .eq('is_featured', true)
-    .order('created_at', { ascending: false })
+    .order('sort_order', { ascending: true })
     .limit(4)
   return data ?? []
 }
