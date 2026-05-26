@@ -162,25 +162,28 @@ export function SortableArtworks({ initialArtworks }: SortableArtworksProps) {
         {saveError && <span className="text-xs text-red-500">{saveError}</span>}
       </div>
 
-      <div className="bg-white border border-stone-200 overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-stone-100">
-              {['', '', 'Title', 'Medium', 'Price', 'Status', ''].map((h, i) => (
-                <th
-                  key={i}
-                  className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-stone-400"
-                >
-                  {h}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-          >
+      {/* DndContext must wrap the table from outside — it renders a div internally
+          which is invalid HTML inside <table>. SortableContext renders no DOM
+          element so it can safely sit inside <tbody>. */}
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
+      >
+        <div className="bg-white border border-stone-200 overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-stone-100">
+                {['', '', 'Title', 'Medium', 'Price', 'Status', ''].map((h, i) => (
+                  <th
+                    key={i}
+                    className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-stone-400"
+                  >
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
             <SortableContext
               items={artworks.map(a => a.id)}
               strategy={verticalListSortingStrategy}
@@ -191,9 +194,9 @@ export function SortableArtworks({ initialArtworks }: SortableArtworksProps) {
                 ))}
               </tbody>
             </SortableContext>
-          </DndContext>
-        </table>
-      </div>
+          </table>
+        </div>
+      </DndContext>
 
       <p className="mt-3 text-xs text-stone-400">
         Drag rows to reorder. Order is reflected in the gallery and shop.
