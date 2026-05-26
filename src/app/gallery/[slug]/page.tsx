@@ -23,6 +23,47 @@ async function getArtwork(slug: string): Promise<ArtworkWithImages | null> {
   return data ?? null
 }
 
+interface ArtworkNav {
+  slug: string
+  title: string
+  medium: string
+  year_created: number | null
+  thumb: string | null
+}
+
+async function getAdjacentArtworks(currentId: string): Promise<{ prev: ArtworkNav | null; next: ArtworkNav | null }> {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('artworks')
+    .select('id, slug, title, medium, year_created, artwork_images(storage_path, is_primary, sort_order)')
+    .order('sort_order', { ascending: true })
+
+  if (!data || data.length < 2) return { prev: null, next: null }
+
+  const index = data.findIndex(a => a.id === currentId)
+  if (index === -1) return { prev: null, next: null }
+
+  const toNav = (a: typeof data[number]): ArtworkNav => {
+    const images = (a.artwork_images ?? []) as { storage_path: string; is_primary: boolean; sort_order: number }[]
+    const primary = images.find(i => i.is_primary) ?? images.sort((x, y) => x.sort_order - y.sort_order)[0]
+    return {
+      slug: a.slug,
+      title: a.title,
+      medium: a.medium,
+      year_created: a.year_created,
+      thumb: primary ? getPublicImageUrl(primary.storage_path) : null,
+    }
+  }
+
+  const prevIndex = (index - 1 + data.length) % data.length
+  const nextIndex = (index + 1) % data.length
+
+  return {
+    prev: toNav(data[prevIndex]),
+    next: toNav(data[nextIndex]),
+  }
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const artwork = await getArtwork(slug)
@@ -58,6 +99,8 @@ export default async function ArtworkPage({ params }: Props) {
   const artwork = await getArtwork(slug)
   if (!artwork) notFound()
 
+  const { prev, next } = await getAdjacentArtworks(artwork.id)
+
   const sortedImages = [...(artwork.artwork_images ?? [])].sort(
     (a, b) => (b.is_primary ? 1 : 0) - (a.is_primary ? 1 : 0) || a.sort_order - b.sort_order
   )
@@ -92,7 +135,8 @@ export default async function ArtworkPage({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <div className="mx-auto max-w-7xl px-6 md:px-14 py-12 md:py-16">
+      {/* pb-24 clears the sticky nav bar at the bottom */}
+      <div className="mx-auto max-w-7xl px-6 md:px-14 py-12 md:py-16 pb-24 md:pb-28">
 
         {/* Back link */}
         <Link
@@ -232,6 +276,102 @@ export default async function ArtworkPage({ params }: Props) {
           </div>
         </div>
       </div>
+
+      {/* ── Prev / Next navigation — sticky footer ────────────────────── */}
+      {(prev || next) && (
+        <nav
+          aria-label="Browse artworks"
+          className="fixed bottom-0 left-0 right-0 z-40 bg-parchment border-t border-warm-border shadow-[0_-4px_24px_rgba(25,22,14,0.06)]"
+        >
+          <div className="mx-auto max-w-7xl px-6 md:px-14">
+            <div className="grid grid-cols-2">
+
+              {/* Previous */}
+              {prev ? (
+                <Link
+                  href={`/gallery/${prev.slug}`}
+                  className="group flex items-center gap-3 md:gap-4 py-4 pr-4 md:pr-6 border-r border-warm-border hover:bg-cream transition-colors duration-300"
+                >
+                  {/* Arrow */}
+                  <span className="shrink-0 text-warm-muted group-hover:text-ink transition-colors duration-300">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.2">
+                      <path d="M13 4L7 10L13 16" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </span>
+
+                  {/* Thumbnail */}
+                  {prev.thumb && (
+                    <div className="relative h-10 w-10 shrink-0 bg-warm-border/20 overflow-hidden hidden sm:block">
+                      <Image
+                        src={prev.thumb}
+                        alt={prev.title}
+                        fill
+                        className="object-contain p-0.5 transition-transform duration-500 group-hover:scale-105"
+                        sizes="40px"
+                      />
+                    </div>
+                  )}
+
+                  {/* Label + title */}
+                  <div className="min-w-0">
+                    <p className="text-[9px] uppercase tracking-[0.2em] text-warm-muted mb-0.5">Previous</p>
+                    <p className="font-display italic text-[13px] md:text-[15px] text-ink leading-snug truncate group-hover:text-warm-muted transition-colors duration-300">
+                      {prev.title}
+                    </p>
+                    <p className="text-[10px] uppercase tracking-[0.12em] text-warm-muted mt-0.5 capitalize hidden sm:block">
+                      {prev.medium}{prev.year_created ? `, ${prev.year_created}` : ''}
+                    </p>
+                  </div>
+                </Link>
+              ) : (
+                <div /> /* empty cell to preserve grid */
+              )}
+
+              {/* Next */}
+              {next ? (
+                <Link
+                  href={`/gallery/${next.slug}`}
+                  className="group flex items-center justify-end gap-3 md:gap-4 py-4 pl-4 md:pl-6 hover:bg-cream transition-colors duration-300"
+                >
+                  {/* Label + title */}
+                  <div className="min-w-0 text-right">
+                    <p className="text-[9px] uppercase tracking-[0.2em] text-warm-muted mb-0.5">Next</p>
+                    <p className="font-display italic text-[13px] md:text-[15px] text-ink leading-snug truncate group-hover:text-warm-muted transition-colors duration-300">
+                      {next.title}
+                    </p>
+                    <p className="text-[10px] uppercase tracking-[0.12em] text-warm-muted mt-0.5 capitalize hidden sm:block">
+                      {next.medium}{next.year_created ? `, ${next.year_created}` : ''}
+                    </p>
+                  </div>
+
+                  {/* Thumbnail */}
+                  {next.thumb && (
+                    <div className="relative h-10 w-10 shrink-0 bg-warm-border/20 overflow-hidden hidden sm:block">
+                      <Image
+                        src={next.thumb}
+                        alt={next.title}
+                        fill
+                        className="object-contain p-0.5 transition-transform duration-500 group-hover:scale-105"
+                        sizes="40px"
+                      />
+                    </div>
+                  )}
+
+                  {/* Arrow */}
+                  <span className="shrink-0 text-warm-muted group-hover:text-ink transition-colors duration-300">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.2">
+                      <path d="M7 4L13 10L7 16" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </span>
+                </Link>
+              ) : (
+                <div />
+              )}
+
+            </div>
+          </div>
+        </nav>
+      )}
     </>
   )
 }
