@@ -9,7 +9,7 @@ export async function GET(request: Request) {
   let query = supabase
     .from('artworks')
     .select('*, artwork_images(*)')
-    .order('created_at', { ascending: false })
+    .order('sort_order', { ascending: true })
 
   if (medium && ['painting', 'sculpture', 'glass'].includes(medium)) {
     query = query.eq('medium', medium)
