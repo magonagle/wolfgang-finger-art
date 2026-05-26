@@ -45,8 +45,9 @@ input, textarea, select { cursor: text; }
   pointer-events: none;
   z-index: 9999;
   transform: translate(-50%, -50%);
-  transition: width 200ms ease, height 200ms ease, background 200ms ease;
+  transition: width 200ms ease, height 200ms ease, background 200ms ease, opacity 200ms ease;
   will-change: transform;
+  opacity: 0;
 }
 
 #cursor-ring {
@@ -60,6 +61,7 @@ input, textarea, select { cursor: text; }
   transform: translate(-50%, -50%);
   transition: width 300ms ease, height 300ms ease, opacity 300ms ease, border-color 300ms ease;
   will-change: transform;
+  opacity: 0;
 }
 
 body.cursor-hover #cursor-dot  { width: 10px; height: 10px; background: theme(colors.gold); }

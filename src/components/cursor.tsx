@@ -6,6 +6,10 @@ const INTERACTIVE = 'a, button, [role="button"], label, select'
 
 export function Cursor() {
   useEffect(() => {
+    /* Only activate on devices with a fine pointer (mouse/trackpad).
+       On touch screens the dot just sits at the last tap position — looks broken. */
+    if (!window.matchMedia('(pointer: fine)').matches) return
+
     const dot  = document.getElementById('cursor-dot')
     const ring = document.getElementById('cursor-ring')
     if (!dot || !ring) return
@@ -13,12 +17,19 @@ export function Cursor() {
     let ringX = 0, ringY = 0
     let mouseX = 0, mouseY = 0
     let rafId: number
+    let revealed = false
 
     /* ── Coordinate tracking (mousemove) ── */
     function onMouseMove(e: MouseEvent) {
       mouseX = e.clientX
       mouseY = e.clientY
       dot!.style.transform = `translate(calc(${mouseX}px - 50%), calc(${mouseY}px - 50%))`
+      // Reveal on first real mouse move so elements never flash at 0,0
+      if (!revealed) {
+        dot!.style.opacity  = '1'
+        ring!.style.opacity = '1'
+        revealed = true
+      }
     }
 
     function lerp(a: number, b: number, t: number) { return a + (b - a) * t }
