@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import {
@@ -21,6 +21,35 @@ import { CSS } from '@dnd-kit/utilities'
 import { formatPrice, getPublicImageUrl } from '@/lib/utils'
 import { Badge } from '@/components/ui/Badge'
 import type { ArtworkWithImages } from '@/types/database'
+
+/* ── Delete button ─────────────────────────────────────────────────────── */
+function DeleteButton({ artworkId, artworkTitle }: { artworkId: string; artworkTitle: string }) {
+  const [deleting, setDeleting] = useState(false)
+
+  async function handleDelete() {
+    if (!window.confirm(`Delete "${artworkTitle}"? This cannot be undone.`)) return
+    setDeleting(true)
+    try {
+      const res = await fetch(`/api/admin/artworks/${artworkId}`, { method: 'DELETE' })
+      if (!res.ok) throw new Error('Failed to delete')
+      // Let parent remove the row via onDelete
+      document.dispatchEvent(new CustomEvent('artwork-deleted', { detail: { id: artworkId } }))
+    } catch {
+      alert('Could not delete artwork. Please try again.')
+      setDeleting(false)
+    }
+  }
+
+  return (
+    <button
+      onClick={handleDelete}
+      disabled={deleting}
+      className="text-xs text-red-400 hover:text-red-700 disabled:opacity-40 transition-colors"
+    >
+      {deleting ? 'Deleting…' : 'Delete'}
+    </button>
+  )
+}
 
 /* ── Individual sortable row ───────────────────────────────────────────── */
 function SortableRow({ artwork }: { artwork: ArtworkWithImages }) {
@@ -94,12 +123,15 @@ function SortableRow({ artwork }: { artwork: ArtworkWithImages }) {
         )}
       </td>
       <td className="px-4 py-3 text-right">
-        <Link
-          href={`/admin/artworks/${artwork.id}/edit`}
-          className="text-xs text-stone-400 hover:text-stone-900 underline"
-        >
-          Edit
-        </Link>
+        <div className="flex items-center justify-end gap-3">
+          <Link
+            href={`/admin/artworks/${artwork.id}/edit`}
+            className="text-xs text-stone-400 hover:text-stone-900 underline"
+          >
+            Edit
+          </Link>
+          <DeleteButton artworkId={artwork.id} artworkTitle={artwork.title} />
+        </div>
       </td>
     </tr>
   )
@@ -116,6 +148,16 @@ export function SortableArtworks({ initialArtworks }: SortableArtworksProps) {
   )
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
+
+  // Listen for artwork-deleted events dispatched by DeleteButton
+  useEffect(() => {
+    function handleArtworkDeleted(e: Event) {
+      const { id } = (e as CustomEvent<{ id: string }>).detail
+      setArtworks(prev => prev.filter(a => a.id !== id))
+    }
+    document.addEventListener('artwork-deleted', handleArtworkDeleted)
+    return () => document.removeEventListener('artwork-deleted', handleArtworkDeleted)
+  }, [])
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
