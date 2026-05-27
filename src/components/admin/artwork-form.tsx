@@ -137,7 +137,7 @@ export function ArtworkForm({ artwork }: ArtworkFormProps) {
           step="0.01"
           label="Price (USD) *"
           error={errors.price?.message}
-          {...register('price', { valueAsNumber: true })}
+          {...register('price', { setValueAs: v => v === '' ? undefined : parseFloat(v) })}
         />
       </div>
 
@@ -153,7 +153,7 @@ export function ArtworkForm({ artwork }: ArtworkFormProps) {
           type="number"
           label="Year Created"
           error={errors.year_created?.message}
-          {...register('year_created', { valueAsNumber: true })}
+          {...register('year_created', { setValueAs: v => v === '' ? null : parseInt(v, 10) })}
         />
       </div>
 
