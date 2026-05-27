@@ -1,10 +1,12 @@
 import Image from 'next/image'
 import Link from 'next/link'
+
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { createClient, createStaticClient } from '@/lib/supabase/server'
 import { formatPrice, getPublicImageUrl, stripHtml } from '@/lib/utils'
 import { AddToCartButton } from './_components/add-to-cart-button'
+import { ImageGallery } from './_components/image-gallery'
 import type { ArtworkWithImages } from '@/types/database'
 
 export const revalidate = 60
@@ -151,44 +153,7 @@ export default async function ArtworkPage({ params }: Props) {
 
           {/* ── Left: image column ─────────────────────────────────────── */}
           <div>
-            {primaryImage ? (
-              <div className="relative bg-parchment">
-                <div className="relative aspect-[4/3]">
-                  <Image
-                    src={getPublicImageUrl(primaryImage.storage_path)}
-                    alt={primaryImage.alt_text ?? artwork.title}
-                    fill
-                    className="object-contain object-top p-4"
-                    priority
-                    sizes="(max-width: 1024px) 100vw, 60vw"
-                  />
-                </div>
-              </div>
-            ) : (
-              <div className="aspect-[4/3] bg-warm-border/30 flex items-center justify-center">
-                <span className="text-[11px] uppercase tracking-widest text-warm-muted">No image</span>
-              </div>
-            )}
-
-            {/* Additional images */}
-            {sortedImages.length > 1 && (
-              <div className="mt-3 grid grid-cols-5 gap-2">
-                {sortedImages.slice(1).map(img => (
-                  <div
-                    key={img.id}
-                    className="relative aspect-square bg-warm-border/20 overflow-hidden cursor-pointer group"
-                  >
-                    <Image
-                      src={getPublicImageUrl(img.storage_path)}
-                      alt={img.alt_text ?? artwork.title}
-                      fill
-                      className="object-cover opacity-70 group-hover:opacity-100 transition-opacity duration-300"
-                      sizes="120px"
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
+            <ImageGallery images={sortedImages} artworkTitle={artwork.title} />
           </div>
 
           {/* ── Right: wall label + purchase ───────────────────────────── */}
