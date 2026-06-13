@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import { Bodoni_Moda, DM_Sans } from 'next/font/google'
 import { CartProvider } from '@/context/cart'
-import { Cursor } from '@/components/cursor'
 import './globals.css'
 
 const bodoni = Bodoni_Moda({
@@ -34,7 +33,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${bodoni.variable} ${dmSans.variable} h-full`}>
       <body className="flex min-h-full flex-col antialiased">
-        <Cursor />
         <CartProvider>{children}</CartProvider>
       </body>
     </html>

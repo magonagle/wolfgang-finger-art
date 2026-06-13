@@ -31,12 +31,9 @@ body {
   font-family: var(--font-dm-sans), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  cursor: none;
 }
 
-/* Kill default cursor everywhere except inside inputs/textareas
-   (re-enable there so text cursor still works) */
-a, button, [role="button"] { cursor: none; }
+a, button, [role="button"] { cursor: pointer; }
 input, textarea, select { cursor: text; }
 
 ::selection {
@@ -44,37 +41,6 @@ input, textarea, select { cursor: text; }
   color: theme(colors.parchment);
 }
 
-/* ─── Custom Cursor ──────────────────────────────────────────────────── */
-#cursor-dot {
-  position: fixed;
-  top: 0; left: 0;
-  width: 6px; height: 6px;
-  background: theme(colors.ink);
-  border-radius: 9999px;
-  pointer-events: none;
-  z-index: 9999;
-  transform: translate(-50%, -50%);
-  transition: width 200ms ease, height 200ms ease, background 200ms ease, opacity 200ms ease;
-  will-change: transform;
-  opacity: 0;
-}
-
-#cursor-ring {
-  position: fixed;
-  top: 0; left: 0;
-  width: 28px; height: 28px;
-  border: 1px solid theme(colors.ink);
-  border-radius: 9999px;
-  pointer-events: none;
-  z-index: 9998;
-  transform: translate(-50%, -50%);
-  transition: width 300ms ease, height 300ms ease, opacity 300ms ease, border-color 300ms ease;
-  will-change: transform;
-  opacity: 0;
-}
-
-body.cursor-hover #cursor-dot  { width: 10px; height: 10px; background: theme(colors.gold); }
-body.cursor-hover #cursor-ring { width: 42px; height: 42px; border-color: theme(colors.gold); opacity: 0.6; }
 
 /* ─── Typography Helpers ─────────────────────────────────────────────── */
 .font-display { font-family: var(--font-bodoni), 'Bodoni MT', Georgia, serif; }
