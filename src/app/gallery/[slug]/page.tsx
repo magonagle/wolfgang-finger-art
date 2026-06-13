@@ -222,11 +222,11 @@ export default async function ArtworkPage({ params }: Props) {
                   <AddToCartButton artwork={artwork} />
 
                   <p className="mt-4 text-[10px] text-warm-muted tracking-wide">
-                    Shipping calculated at checkout. Originals ship insured.
+                    Shipping within the US. Originals ship insured.
                   </p>
 
-                  {/* Inquire link — only shown for available works */}
-                  <div className="mt-8 pt-6 border-t border-warm-border">
+                  {/* Inquire links */}
+                  <div className="mt-8 pt-6 border-t border-warm-border space-y-4">
                     <Link
                       href={`/contact?subject=${encodeURIComponent(`Inquiry: ${artwork.title}`)}`}
                       className="inline-flex items-center gap-3 text-[10px] uppercase tracking-[0.16em] text-warm-muted hover:text-ink transition-colors group"
@@ -234,6 +234,16 @@ export default async function ArtworkPage({ params }: Props) {
                       <span className="h-px w-5 bg-warm-muted group-hover:w-8 group-hover:bg-ink transition-all duration-300" />
                       Inquire about this work
                     </Link>
+                    <div>
+                      <p className="text-[10px] text-warm-muted tracking-wide mb-1">Outside the US?</p>
+                      <Link
+                        href={`/contact?subject=${encodeURIComponent(`International shipping: ${artwork.title}`)}`}
+                        className="inline-flex items-center gap-3 text-[10px] uppercase tracking-[0.16em] text-warm-muted hover:text-ink transition-colors group"
+                      >
+                        <span className="h-px w-5 bg-warm-muted group-hover:w-8 group-hover:bg-ink transition-all duration-300" />
+                        Contact us for a shipping quote
+                      </Link>
+                    </div>
                   </div>
                 </>
               )}
