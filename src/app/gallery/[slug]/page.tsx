@@ -228,7 +228,7 @@ export default async function ArtworkPage({ params }: Props) {
                   {/* Inquire links */}
                   <div className="mt-8 pt-6 border-t border-warm-border space-y-4">
                     <Link
-                      href={`/contact?subject=${encodeURIComponent(`Inquiry: ${artwork.title}`)}`}
+                      href={`/contact?subject=${encodeURIComponent(`I'm interested in "${artwork.title}" and would like more information. Please get in touch with me at your convenience.`)}`}
                       className="inline-flex items-center gap-3 text-[10px] uppercase tracking-[0.16em] text-warm-muted hover:text-ink transition-colors group"
                     >
                       <span className="h-px w-5 bg-warm-muted group-hover:w-8 group-hover:bg-ink transition-all duration-300" />
@@ -237,7 +237,7 @@ export default async function ArtworkPage({ params }: Props) {
                     <div>
                       <p className="text-[10px] text-warm-muted tracking-wide mb-1">Outside the US?</p>
                       <Link
-                        href={`/contact?subject=${encodeURIComponent(`International shipping: ${artwork.title}`)}`}
+                        href={`/contact?subject=${encodeURIComponent(`I'm interested in purchasing "${artwork.title}" and would like a shipping quote for delivery outside the United States.`)}`}
                         className="inline-flex items-center gap-3 text-[10px] uppercase tracking-[0.16em] text-warm-muted hover:text-ink transition-colors group"
                       >
                         <span className="h-px w-5 bg-warm-muted group-hover:w-8 group-hover:bg-ink transition-all duration-300" />
