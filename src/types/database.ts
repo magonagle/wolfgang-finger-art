@@ -1,4 +1,4 @@
-export type Medium = 'painting' | 'sculpture' | 'glass'
+export type Category = 'painting' | 'sculpture' | 'glass'
 export type Edition = 'original'
 export type OrderStatus = 'pending' | 'paid' | 'shipped' | 'delivered' | 'cancelled'
 
@@ -7,7 +7,8 @@ export interface Artwork {
   slug: string
   title: string
   description: string | null
-  medium: Medium
+  category: Category
+  medium: string | null
   edition: Edition
   price: number
   stock_quantity: number | null  // retained in DB, always null for originals

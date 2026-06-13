@@ -49,7 +49,7 @@ export function ArtworkCard({ artwork, index = 0 }: ArtworkCardProps) {
             {artwork.title}
           </h3>
           <p className="mt-0.5 text-[10px] uppercase tracking-[0.14em] text-warm-muted">
-            {artwork.medium}
+            {artwork.category}
             {artwork.year_created ? `, ${artwork.year_created}` : ''}
           </p>
         </div>

@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
-  const medium = searchParams.get('medium')
+  const category = searchParams.get('category')
 
   const supabase = await createClient()
   let query = supabase
@@ -11,8 +11,8 @@ export async function GET(request: Request) {
     .select('*, artwork_images(*)')
     .order('sort_order', { ascending: true })
 
-  if (medium && ['painting', 'sculpture', 'glass'].includes(medium)) {
-    query = query.eq('medium', medium)
+  if (category && ['painting', 'sculpture', 'glass'].includes(category)) {
+    query = query.eq('category', category)
   }
 
   const { data, error } = await query

@@ -29,7 +29,7 @@ async function getArtwork(slug: string): Promise<ArtworkWithImages | null> {
 interface ArtworkNav {
   slug: string
   title: string
-  medium: string
+  category: string
   year_created: number | null
   thumb: string | null
 }
@@ -38,7 +38,7 @@ async function getAdjacentArtworks(currentId: string): Promise<{ prev: ArtworkNa
   const supabase = await createClient()
   const { data } = await supabase
     .from('artworks')
-    .select('id, slug, title, medium, year_created, artwork_images(storage_path, is_primary, sort_order)')
+    .select('id, slug, title, category, year_created, artwork_images(storage_path, is_primary, sort_order)')
     .order('sort_order', { ascending: true })
 
   if (!data || data.length < 2) return { prev: null, next: null }
@@ -52,7 +52,7 @@ async function getAdjacentArtworks(currentId: string): Promise<{ prev: ArtworkNa
     return {
       slug: a.slug,
       title: a.title,
-      medium: a.medium,
+      category: a.category,
       year_created: a.year_created,
       thumb: primary ? getPublicImageUrl(primary.storage_path) : null,
     }
@@ -77,7 +77,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const plainDescription = artwork.description
     ? stripHtml(artwork.description)
-    : `${artwork.title} — ${artwork.medium} by Wolfgang Finger`
+    : `${artwork.title} — ${artwork.category} by Wolfgang Finger`
 
   return {
     title: artwork.title,
@@ -106,7 +106,7 @@ export default async function ArtworkPage({ params }: Props) {
 
   const shippingCents = artwork.shipping_cost != null
     ? Math.round(artwork.shipping_cost * 100)
-    : getShippingCost(artwork.medium)
+    : getShippingCost(artwork.category)
   const shippingDisplay = formatPrice(shippingCents / 100)
 
   const sortedImages = [...(artwork.artwork_images ?? [])].sort(
@@ -119,7 +119,7 @@ export default async function ArtworkPage({ params }: Props) {
     '@type': 'VisualArtwork',
     name: artwork.title,
     description: artwork.description ? stripHtml(artwork.description) : undefined,
-    artMedium: artwork.medium,
+    artMedium: artwork.medium ?? artwork.category,
     width: artwork.dimensions,
     dateCreated: artwork.year_created?.toString(),
     offers: {
@@ -165,9 +165,9 @@ export default async function ArtworkPage({ params }: Props) {
           {/* ── Right: wall label + purchase ───────────────────────────── */}
           <div className="lg:pt-4 flex flex-col">
 
-            {/* Medium tag */}
+            {/* Category tag */}
             <p className="text-[10px] uppercase tracking-[0.2em] text-warm-muted mb-4">
-              {artwork.medium}  ·  Original Work
+              {artwork.category}  ·  Original Work
             </p>
 
             {/* Title */}
@@ -192,7 +192,7 @@ export default async function ArtworkPage({ params }: Props) {
                 )}
                 <div className="flex justify-between">
                   <dt className="text-[10px] uppercase tracking-[0.16em] text-warm-muted">Medium</dt>
-                  <dd className="text-[12px] text-ink capitalize">{artwork.medium}</dd>
+                  <dd className="text-[12px] text-ink">{artwork.medium ?? artwork.category}</dd>
                 </div>
               </dl>
             </div>
@@ -300,7 +300,7 @@ export default async function ArtworkPage({ params }: Props) {
                       {prev.title}
                     </p>
                     <p className="text-[10px] uppercase tracking-[0.12em] text-warm-muted mt-0.5 capitalize hidden sm:block">
-                      {prev.medium}{prev.year_created ? `, ${prev.year_created}` : ''}
+                      {prev.category}{prev.year_created ? `, ${prev.year_created}` : ''}
                     </p>
                   </div>
                 </Link>
@@ -321,7 +321,7 @@ export default async function ArtworkPage({ params }: Props) {
                       {next.title}
                     </p>
                     <p className="text-[10px] uppercase tracking-[0.12em] text-warm-muted mt-0.5 capitalize hidden sm:block">
-                      {next.medium}{next.year_created ? `, ${next.year_created}` : ''}
+                      {next.category}{next.year_created ? `, ${next.year_created}` : ''}
                     </p>
                   </div>
 
