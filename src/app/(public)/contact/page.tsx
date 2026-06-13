@@ -6,7 +6,12 @@ export const metadata: Metadata = {
   description: 'Get in touch with Wolfgang Finger for inquiries about available works or exhibitions.',
 }
 
-export default function ContactPage() {
+interface Props {
+  searchParams: Promise<{ subject?: string }>
+}
+
+export default async function ContactPage({ searchParams }: Props) {
+  const { subject } = await searchParams
   return (
     <div className="mx-auto max-w-7xl px-6 md:px-14 py-16 md:py-20">
 
@@ -54,7 +59,7 @@ export default function ContactPage() {
 
         {/* Right: form */}
         <div>
-          <ContactForm />
+          <ContactForm initialMessage={subject} />
         </div>
       </div>
     </div>

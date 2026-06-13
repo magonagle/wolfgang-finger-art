@@ -1,11 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Turnstile } from '@marsidev/react-turnstile'
 import { contactSchema, type ContactFormData } from '@/lib/validations'
 
-/* Bare field wrapper — matches the gallery's bottom-border input style */
 function Field({
   id,
   label,
@@ -37,9 +37,10 @@ const inputClass =
   'w-full bg-transparent border-0 border-b border-warm-border pb-2 text-[13px] text-ink ' +
   'placeholder:text-warm-muted/50 focus:outline-none focus:border-ink transition-colors duration-200'
 
-export function ContactForm() {
+export function ContactForm({ initialMessage }: { initialMessage?: string }) {
   const [submitted, setSubmitted] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
+  const turnstileToken = useRef<string | null>(null)
 
   const {
     register,
@@ -47,6 +48,7 @@ export function ContactForm() {
     formState: { errors, isSubmitting },
   } = useForm<ContactFormData>({
     resolver: zodResolver(contactSchema),
+    defaultValues: { message: initialMessage ?? '' },
   })
 
   async function onSubmit(data: ContactFormData) {
@@ -55,16 +57,18 @@ export function ContactForm() {
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ ...data, turnstileToken: turnstileToken.current }),
       })
-      if (!res.ok) throw new Error('Failed to send message')
+      if (!res.ok) {
+        const body = await res.json()
+        throw new Error(body.error ?? 'Failed to send message')
+      }
       setSubmitted(true)
-    } catch {
-      setServerError('Something went wrong. Please try again.')
+    } catch (err) {
+      setServerError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
     }
   }
 
-  /* ── Success state ───────────────────────────────────────────────── */
   if (submitted) {
     return (
       <div className="py-16">
@@ -79,7 +83,6 @@ export function ContactForm() {
     )
   }
 
-  /* ── Form ────────────────────────────────────────────────────────── */
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
 
@@ -114,6 +117,15 @@ export function ContactForm() {
           {...register('message')}
         />
       </Field>
+
+      {/* Turnstile captcha — only renders if site key is configured */}
+      {process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY && (
+        <Turnstile
+          siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
+          onSuccess={token => { turnstileToken.current = token }}
+          options={{ theme: 'light', size: 'normal' }}
+        />
+      )}
 
       {serverError && (
         <p className="text-[11px] text-red-500 tracking-wide">{serverError}</p>
