@@ -39,13 +39,13 @@ export function ImageGallery({ images, artworkTitle }: ImageGalleryProps) {
 
       {/* Thumbnail strip — only shown when there are multiple images */}
       {images.length > 1 && (
-        <div className="mt-3 grid grid-cols-5 gap-2">
+        <div className="mt-3 flex flex-wrap justify-center gap-2">
           {images.map(img => (
             <button
               key={img.id}
               onClick={() => setSelected(img)}
               className={[
-                'relative aspect-square overflow-hidden transition-all duration-200',
+                'relative w-20 h-20 shrink-0 overflow-hidden transition-all duration-200',
                 selected.id === img.id
                   ? 'ring-1 ring-ink opacity-100'
                   : 'opacity-50 hover:opacity-80',
