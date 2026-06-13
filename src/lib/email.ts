@@ -10,6 +10,7 @@ export async function sendAdminNotification(subject: string, html: string) {
   if (!process.env.RESEND_API_KEY || !process.env.CONTACT_CC_EMAIL) return
   await getResend().emails.send({
     from: FROM,
+    replyTo: 'fingersoccer@aol.com',
     to: process.env.CONTACT_CC_EMAIL,
     subject,
     html,
@@ -30,6 +31,7 @@ export async function sendShippingConfirmation({
   if (!process.env.RESEND_API_KEY) return
   await getResend().emails.send({
     from: FROM,
+    replyTo: 'fingersoccer@aol.com',
     to,
     subject: 'Your order has shipped — Wolfgang Finger',
     html: `
