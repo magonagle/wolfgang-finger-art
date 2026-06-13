@@ -59,7 +59,7 @@ export async function POST(request: Request) {
       if (!artwork) return 0
       return artwork.shipping_cost != null
         ? Math.round(artwork.shipping_cost * 100)
-        : getShippingCost(artwork.medium)
+        : getShippingCost(artwork.category)
     })
   )
 

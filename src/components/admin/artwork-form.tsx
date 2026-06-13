@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { artworkSchema, type ArtworkFormData } from '@/lib/validations'
 import { slugify } from '@/lib/utils'
-import { MEDIUMS } from '@/lib/mediums'
+import { CATEGORIES } from '@/lib/mediums'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 import { ImageUpload } from '@/components/admin/image-upload'
@@ -39,7 +39,8 @@ export function ArtworkForm({ artwork }: ArtworkFormProps) {
           title: artwork.title,
           slug: artwork.slug,
           description: artwork.description ?? '',
-          medium: artwork.medium,
+          category: artwork.category,
+          medium: artwork.medium ?? '',
           price: artwork.price,
           dimensions: artwork.dimensions ?? '',
           year_created: artwork.year_created ?? undefined,
@@ -48,7 +49,7 @@ export function ArtworkForm({ artwork }: ArtworkFormProps) {
           is_sold: artwork.is_sold,
           shipping_cost: artwork.shipping_cost ?? undefined,
         }
-      : { medium: 'painting', is_featured: false, is_hero: false, is_sold: false },
+      : { category: 'painting', is_featured: false, is_hero: false, is_sold: false },
   })
 
   const title = watch('title')
@@ -116,22 +117,32 @@ export function ArtworkForm({ artwork }: ArtworkFormProps) {
         />
       </div>
 
-      <div className="grid gap-5 sm:grid-cols-3">
+      <div className="grid gap-5 sm:grid-cols-2">
         <div className="flex flex-col gap-1">
-          <label htmlFor="medium" className="text-sm font-medium text-stone-700">
-            Medium *
+          <label htmlFor="category" className="text-sm font-medium text-stone-700">
+            Category *
           </label>
           <select
-            id="medium"
+            id="category"
             className="h-10 border border-stone-300 bg-white px-3 text-sm text-stone-900 focus:outline-none focus:ring-2 focus:ring-stone-900"
-            {...register('medium')}
+            {...register('category')}
           >
-            {MEDIUMS.map(({ value, label }) => (
+            {CATEGORIES.map(({ value, label }) => (
               <option key={value} value={value}>{label}</option>
             ))}
           </select>
         </div>
 
+        <Input
+          id="medium"
+          label="Medium"
+          placeholder="e.g. Acrylic on canvas"
+          error={errors.medium?.message}
+          {...register('medium')}
+        />
+      </div>
+
+      <div className="grid gap-5 sm:grid-cols-2">
         <Input
           id="price"
           type="number"

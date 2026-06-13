@@ -113,7 +113,7 @@ function SortableRow({ artwork }: { artwork: ArtworkWithImages }) {
       </td>
 
       <td className="px-4 py-3 text-stone-900 font-medium">{artwork.title}</td>
-      <td className="px-4 py-3 text-stone-500 capitalize">{artwork.medium}</td>
+      <td className="px-4 py-3 text-stone-500 capitalize">{artwork.category}</td>
       <td className="px-4 py-3 text-stone-700">{formatPrice(artwork.price)}</td>
       <td className="px-4 py-3">
         {artwork.is_sold ? (

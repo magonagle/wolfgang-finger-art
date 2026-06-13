@@ -119,7 +119,7 @@ export default function CartPage() {
                       {artwork.title}
                     </Link>
                     <p className="mt-1 text-[10px] uppercase tracking-[0.14em] text-warm-muted">
-                      {artwork.medium}  ·  Original
+                      {artwork.category}  ·  Original
                     </p>
                   </div>
 

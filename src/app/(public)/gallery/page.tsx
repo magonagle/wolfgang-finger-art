@@ -3,16 +3,16 @@
 import { useState, useEffect } from 'react'
 import { ArtworkGrid } from '@/components/artwork-grid'
 import { GALLERY_FILTERS } from '@/lib/mediums'
-import type { ArtworkWithImages, Medium } from '@/types/database'
+import type { ArtworkWithImages, Category } from '@/types/database'
 
 export default function GalleryPage() {
   const [artworks, setArtworks] = useState<ArtworkWithImages[]>([])
-  const [filter, setFilter] = useState<Medium | 'all'>('all')
+  const [filter, setFilter] = useState<Category | 'all'>('all')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     setLoading(true)
-    const params = filter !== 'all' ? `?medium=${filter}` : ''
+    const params = filter !== 'all' ? `?category=${filter}` : ''
     fetch(`/api/artworks${params}`)
       .then(r => r.json())
       .then(data => setArtworks(data.artworks ?? []))
@@ -20,7 +20,7 @@ export default function GalleryPage() {
   }, [filter])
 
   const filtered =
-    filter === 'all' ? artworks : artworks.filter(a => a.medium === filter)
+    filter === 'all' ? artworks : artworks.filter(a => a.category === filter)
 
   const activeNum = GALLERY_FILTERS.find(f => f.value === filter)?.num ?? '01'
 
