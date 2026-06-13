@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { formatDate } from '@/lib/utils'
 import type { ContactMessage } from '@/types/database'
 
@@ -15,6 +15,13 @@ export function MessagesClient({ messages: initial }: Props) {
   const [filter, setFilter] = useState<'all' | 'unread' | 'archived'>('all')
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
+  const [copied, setCopied] = useState<string | null>(null)
+
+  const copyEmail = useCallback((email: string) => {
+    navigator.clipboard.writeText(email)
+    setCopied(email)
+    setTimeout(() => setCopied(null), 2000)
+  }, [])
 
   const active = messages.filter(m => !m.is_archived)
   const archived = messages.filter(m => m.is_archived)
@@ -184,12 +191,12 @@ export function MessagesClient({ messages: initial }: Props) {
                   {msg.message}
                 </p>
 
-                <a
-                  href={`mailto:${msg.email}?subject=Re: Your message to Wolfgang Finger`}
-                  className="mt-3 inline-block text-xs text-stone-400 hover:text-stone-700 underline underline-offset-4"
+                <button
+                  onClick={() => copyEmail(msg.email)}
+                  className="mt-3 text-xs text-stone-400 hover:text-stone-700 underline underline-offset-4"
                 >
-                  Reply via email
-                </a>
+                  {copied === msg.email ? 'Copied!' : 'Copy email'}
+                </button>
               </div>
             ))}
           </div>
