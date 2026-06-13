@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Bodoni_Moda, DM_Sans } from 'next/font/google'
+import { GoogleAnalytics } from '@next/third-parties/google'
 import { CartProvider } from '@/context/cart'
 import './globals.css'
 
@@ -35,6 +36,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="flex min-h-full flex-col antialiased">
         <CartProvider>{children}</CartProvider>
       </body>
+      {process.env.NEXT_PUBLIC_GA_ID && (
+        <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
+      )}
     </html>
   )
 }
