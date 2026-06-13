@@ -46,6 +46,7 @@ export interface Order {
   shipping_cost: number
   total: number
   status: OrderStatus
+  tracking_number: string | null
   created_at: string
   updated_at: string
 }

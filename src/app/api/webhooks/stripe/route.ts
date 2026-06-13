@@ -3,6 +3,8 @@ import { headers } from 'next/headers'
 import Stripe from 'stripe'
 import { getStripe } from '@/lib/stripe'
 import { createServiceClient } from '@/lib/supabase/server'
+import { sendAdminNotification } from '@/lib/email'
+import { formatPrice } from '@/lib/utils'
 
 export async function POST(request: Request) {
   const body = await request.text()
@@ -109,4 +111,34 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     // All works are originals — mark as sold immediately
     await supabase.from('artworks').update({ is_sold: true }).eq('id', artworkId)
   }
+
+  // Notify admin of new order
+  const itemList = lineItems
+    .map(item => {
+      const product = item.price?.product as Stripe.Product | null
+      return `<li>${product?.name ?? 'Unknown'} — ${formatPrice((item.price?.unit_amount ?? 0) / 100)}</li>`
+    })
+    .join('')
+
+  const addr = order.shipping_address as Record<string, string> | null
+  const addrHtml = addr
+    ? `${addr.line1}${addr.line2 ? `, ${addr.line2}` : ''}, ${addr.city}, ${addr.state} ${addr.postal_code}`
+    : '—'
+
+  await sendAdminNotification(
+    `New order — ${order.customer_name ?? order.customer_email}`,
+    `
+      <h2 style="margin:0 0 16px">New order received</h2>
+      <p><strong>Customer:</strong> ${order.customer_name ?? '—'} (${order.customer_email})</p>
+      <p><strong>Ship to:</strong> ${addrHtml}</p>
+      <p><strong>Items:</strong></p>
+      <ul>${itemList}</ul>
+      <p><strong>Subtotal:</strong> ${formatPrice(order.subtotal)}</p>
+      <p><strong>Shipping:</strong> ${formatPrice(order.shipping_cost)}</p>
+      <p><strong>Total:</strong> ${formatPrice(order.total)}</p>
+      <p><a href="${process.env.NEXT_PUBLIC_SITE_URL}/admin/orders/${order.id}">View order in admin →</a></p>
+      <hr />
+      <p style="color:#888;font-size:12px;">wolfgangsart.com</p>
+    `
+  )
 }
