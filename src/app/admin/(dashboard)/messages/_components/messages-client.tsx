@@ -10,10 +10,26 @@ interface Props {
 
 export function MessagesClient({ messages: initial }: Props) {
   const [messages, setMessages] = useState(initial)
-  const [filter, setFilter] = useState<'all' | 'unread'>('all')
+  const [filter, setFilter] = useState<'all' | 'unread' | 'archived'>('all')
+  const [search, setSearch] = useState('')
 
-  const unreadCount = messages.filter(m => !m.is_read).length
-  const visible = filter === 'unread' ? messages.filter(m => !m.is_read) : messages
+  const active = messages.filter(m => !m.is_archived)
+  const archived = messages.filter(m => m.is_archived)
+  const unreadCount = active.filter(m => !m.is_read).length
+
+  const base =
+    filter === 'archived' ? archived :
+    filter === 'unread'   ? active.filter(m => !m.is_read) :
+    active
+
+  const q = search.trim().toLowerCase()
+  const visible = q
+    ? base.filter(m =>
+        m.name.toLowerCase().includes(q) ||
+        m.email.toLowerCase().includes(q) ||
+        m.message.toLowerCase().includes(q)
+      )
+    : base
 
   async function markRead(id: string) {
     await fetch(`/api/admin/messages/${id}`, {
@@ -25,15 +41,25 @@ export function MessagesClient({ messages: initial }: Props) {
   }
 
   async function markAllRead() {
-    const unread = messages.filter(m => !m.is_read)
-    await Promise.all(unread.map(m =>
-      fetch(`/api/admin/messages/${m.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ is_read: true }),
-      })
-    ))
-    setMessages(prev => prev.map(m => ({ ...m, is_read: true })))
+    await Promise.all(
+      active.filter(m => !m.is_read).map(m =>
+        fetch(`/api/admin/messages/${m.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ is_read: true }),
+        })
+      )
+    )
+    setMessages(prev => prev.map(m => m.is_archived ? m : { ...m, is_read: true }))
+  }
+
+  async function toggleArchive(id: string, archive: boolean) {
+    await fetch(`/api/admin/messages/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ is_archived: archive }),
+    })
+    setMessages(prev => prev.map(m => m.id === id ? { ...m, is_archived: archive } : m))
   }
 
   async function deleteMessage(id: string) {
@@ -47,23 +73,35 @@ export function MessagesClient({ messages: initial }: Props) {
 
   return (
     <div>
+      {/* Search */}
+      <input
+        type="search"
+        placeholder="Search by name, email, or message…"
+        value={search}
+        onChange={e => setSearch(e.target.value)}
+        className="w-full mb-5 border border-stone-200 px-3 py-2 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-400"
+      />
+
       {/* Toolbar */}
       <div className="flex items-center justify-between mb-5 gap-4">
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => setFilter('all')}
-            className={`text-xs px-3 py-1.5 border transition-colors ${filter === 'all' ? 'border-stone-900 bg-stone-900 text-white' : 'border-stone-200 text-stone-600 hover:border-stone-400'}`}
-          >
-            All ({messages.length})
-          </button>
-          <button
-            onClick={() => setFilter('unread')}
-            className={`text-xs px-3 py-1.5 border transition-colors ${filter === 'unread' ? 'border-stone-900 bg-stone-900 text-white' : 'border-stone-200 text-stone-600 hover:border-stone-400'}`}
-          >
-            Unread ({unreadCount})
-          </button>
+          {(
+            [
+              ['all',      `All (${active.length})`],
+              ['unread',   `Unread (${unreadCount})`],
+              ['archived', `Archived (${archived.length})`],
+            ] as const
+          ).map(([val, label]) => (
+            <button
+              key={val}
+              onClick={() => setFilter(val)}
+              className={`text-xs px-3 py-1.5 border transition-colors ${filter === val ? 'border-stone-900 bg-stone-900 text-white' : 'border-stone-200 text-stone-600 hover:border-stone-400'}`}
+            >
+              {label}
+            </button>
+          ))}
         </div>
-        {unreadCount > 0 && (
+        {unreadCount > 0 && filter !== 'archived' && (
           <button
             onClick={markAllRead}
             className="text-xs text-stone-400 hover:text-stone-700 underline underline-offset-2"
@@ -74,14 +112,22 @@ export function MessagesClient({ messages: initial }: Props) {
       </div>
 
       {visible.length === 0 && (
-        <p className="text-stone-400 text-sm py-10">No unread messages.</p>
+        <p className="text-stone-400 text-sm py-10">
+          {q
+            ? 'No messages match your search.'
+            : filter === 'unread'
+            ? 'No unread messages.'
+            : filter === 'archived'
+            ? 'No archived messages.'
+            : 'No messages yet.'}
+        </p>
       )}
 
       <div className="space-y-3">
         {visible.map(msg => (
           <div
             key={msg.id}
-            className={`bg-white border p-5 ${!msg.is_read ? 'border-amber-300' : 'border-stone-200'}`}
+            className={`bg-white border p-5 ${!msg.is_read && !msg.is_archived ? 'border-amber-300' : 'border-stone-200'}`}
           >
             <div className="flex items-start justify-between gap-4 mb-3">
               <div>
@@ -91,7 +137,7 @@ export function MessagesClient({ messages: initial }: Props) {
               <div className="text-right shrink-0 space-y-1">
                 <p className="text-xs text-stone-400">{formatDate(msg.created_at)}</p>
                 <div className="flex items-center justify-end gap-3">
-                  {!msg.is_read && (
+                  {!msg.is_read && !msg.is_archived && (
                     <button
                       onClick={() => markRead(msg.id)}
                       className="text-xs text-amber-600 hover:text-amber-800 underline"
@@ -99,6 +145,12 @@ export function MessagesClient({ messages: initial }: Props) {
                       Mark read
                     </button>
                   )}
+                  <button
+                    onClick={() => toggleArchive(msg.id, !msg.is_archived)}
+                    className="text-xs text-stone-400 hover:text-stone-700 underline"
+                  >
+                    {msg.is_archived ? 'Unarchive' : 'Archive'}
+                  </button>
                   <button
                     onClick={() => deleteMessage(msg.id)}
                     className="text-xs text-red-400 hover:text-red-700 underline"

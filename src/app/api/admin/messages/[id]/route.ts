@@ -12,10 +12,14 @@ export async function PATCH(request: Request, { params }: Params) {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await request.json()
+  const allowed = ['is_read', 'is_archived']
+  const updates = Object.fromEntries(
+    Object.entries(body as Record<string, unknown>).filter(([k]) => allowed.includes(k))
+  )
 
   const { data, error } = await supabase
     .from('contact_messages')
-    .update({ is_read: body.is_read })
+    .update(updates)
     .eq('id', id)
     .select()
     .single()
