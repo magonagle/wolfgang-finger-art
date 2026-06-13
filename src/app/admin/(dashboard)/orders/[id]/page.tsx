@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { Badge } from '@/components/ui/Badge'
 import { formatPrice, formatDate } from '@/lib/utils'
 import type { OrderStatus, OrderWithItems } from '@/types/database'
+import { OrderActions } from './_components/order-actions'
 
 export const metadata: Metadata = { title: 'Order Detail' }
 
@@ -95,12 +96,25 @@ export default async function AdminOrderDetailPage({ params }: Props) {
           </div>
         </div>
 
+        {order.tracking_number && (
+          <div>
+            <p className="text-xs uppercase tracking-wide text-stone-400 mb-1">Tracking</p>
+            <p className="text-sm text-stone-700">{order.tracking_number}</p>
+          </div>
+        )}
+
         {order.stripe_payment_intent && (
           <p className="text-xs text-stone-400">
             Payment intent: {order.stripe_payment_intent}
           </p>
         )}
       </div>
+
+      <OrderActions
+        orderId={order.id}
+        initialStatus={order.status as OrderStatus}
+        initialTracking={order.tracking_number}
+      />
     </div>
   )
 }
