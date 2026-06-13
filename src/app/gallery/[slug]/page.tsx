@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { createClient, createStaticClient } from '@/lib/supabase/server'
 import { formatPrice, getPublicImageUrl, stripHtml } from '@/lib/utils'
+import { getShippingCost } from '@/lib/stripe'
 import { AddToCartButton } from './_components/add-to-cart-button'
 import { ImageGallery } from './_components/image-gallery'
 import type { ArtworkWithImages } from '@/types/database'
@@ -102,6 +103,11 @@ export default async function ArtworkPage({ params }: Props) {
   if (!artwork) notFound()
 
   const { prev, next } = await getAdjacentArtworks(artwork.id)
+
+  const shippingCents = artwork.shipping_cost != null
+    ? Math.round(artwork.shipping_cost * 100)
+    : getShippingCost(artwork.medium)
+  const shippingDisplay = formatPrice(shippingCents / 100)
 
   const sortedImages = [...(artwork.artwork_images ?? [])].sort(
     (a, b) => (b.is_primary ? 1 : 0) - (a.is_primary ? 1 : 0) || a.sort_order - b.sort_order
@@ -222,7 +228,7 @@ export default async function ArtworkPage({ params }: Props) {
                   <AddToCartButton artwork={artwork} />
 
                   <p className="mt-4 text-[10px] text-warm-muted tracking-wide">
-                    Shipping within the US. Originals ship insured.
+                    Shipping: {shippingDisplay} · Within the US. Originals ship insured.
                   </p>
 
                   {/* Inquire links */}
