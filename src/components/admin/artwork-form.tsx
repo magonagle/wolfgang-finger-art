@@ -46,6 +46,7 @@ export function ArtworkForm({ artwork }: ArtworkFormProps) {
           is_featured: artwork.is_featured,
           is_hero: artwork.is_hero,
           is_sold: artwork.is_sold,
+          shipping_cost: artwork.shipping_cost ?? undefined,
         }
       : { medium: 'painting', is_featured: false, is_hero: false, is_sold: false },
   })
@@ -138,6 +139,16 @@ export function ArtworkForm({ artwork }: ArtworkFormProps) {
           label="Price (USD) *"
           error={errors.price?.message}
           {...register('price', { setValueAs: v => v === '' ? undefined : parseFloat(v) })}
+        />
+
+        <Input
+          id="shipping_cost"
+          type="number"
+          step="0.01"
+          label="Shipping (USD)"
+          placeholder="Leave blank for default"
+          error={errors.shipping_cost?.message}
+          {...register('shipping_cost', { setValueAs: v => v === '' ? null : parseFloat(v) })}
         />
       </div>
 

@@ -17,6 +17,7 @@ export interface Artwork {
   sort_order: number
   dimensions: string | null
   year_created: number | null
+  shipping_cost: number | null
   created_at: string
   updated_at: string
 }
