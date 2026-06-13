@@ -51,12 +51,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'No available items' }, { status: 400 })
   }
 
-  // Determine shipping cost — use the highest rate among cart items
+  // Determine shipping cost — use the highest rate among cart items.
+  // Per-artwork rate takes priority over the medium-based fallback.
   const maxShipping = Math.max(
     ...items.map(cartItem => {
       const artwork = artworks.find(a => a.id === cartItem.artworkId)
       if (!artwork) return 0
-      return getShippingCost(artwork.medium)
+      return artwork.shipping_cost != null
+        ? Math.round(artwork.shipping_cost * 100)
+        : getShippingCost(artwork.medium)
     })
   )
 

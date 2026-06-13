@@ -13,11 +13,11 @@ export function getStripe(): Stripe {
   return _stripe
 }
 
-/** Flat shipping rates in cents by medium (originals only). */
+/** Fallback flat shipping rates in cents by medium (used when no per-artwork rate is set). */
 export const SHIPPING_RATES: Record<string, number> = {
   painting:  2500,
-  sculpture: 7500,
-  glass:     7500,
+  sculpture: 2000,
+  glass:     2200,
 }
 
 export function getShippingCost(medium: string): number {

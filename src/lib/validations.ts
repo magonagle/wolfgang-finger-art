@@ -11,6 +11,7 @@ export const artworkSchema = z.object({
   is_featured: z.boolean(),
   is_hero: z.boolean(),
   is_sold: z.boolean(),
+  shipping_cost: z.number().positive('Shipping cost must be greater than 0').nullable().optional(),
 })
 
 export const contactSchema = z.object({
