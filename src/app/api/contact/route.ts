@@ -50,7 +50,7 @@ export async function POST(request: Request) {
   // Send email notification if configured
   if (process.env.RESEND_API_KEY && process.env.CONTACT_TO_EMAIL) {
     await resend.emails.send({
-      from: 'Wolfgang Finger <onboarding@resend.dev>',
+      from: 'Wolfgang Finger <hello@wolfgangsart.com>',
       to: process.env.CONTACT_TO_EMAIL,
       cc: process.env.CONTACT_CC_EMAIL ? [process.env.CONTACT_CC_EMAIL] : undefined,
       replyTo: email,
